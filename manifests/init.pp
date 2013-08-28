@@ -1,0 +1,8 @@
+#init.pp
+
+class thunderbird (
+		) {
+
+
+
+}
