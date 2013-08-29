@@ -1,0 +1,168 @@
+// --- recommended settings ---
+
+// Disable updater
+lockPref("app.update.enabled", false);
+
+// Disable update service (introduced in version 12)
+lockPref("app.update.service.enabled", false);
+
+// Enable extensions only inside Program Files
+pref("extensions.autoDisableScopes", 11);
+
+// --- optional settings ---
+
+// disable ad for gandi.net and hover.com
+pref("mail.provider.enabled", false);
+
+// don't waste vertical space for useless tab
+// pref ("mail.tabs.autoHide", true);
+
+// Don't show WhatsNew on first run of new version
+pref("mailnews.start_page_override.mstone","ignore");
+
+// Don't show 'know your rights' on first run
+pref("mail.rights.version", 1);
+
+// Don't ask to send aggregate health-data on second run
+pref("toolkit.telemetry.prompted", true);
+pref("toolkit.telemetry.rejected", true);
+
+// Don't send aggregate health-data
+pref("toolkit.telemetry.enabled", false);
+
+// Don't send performance statistics and hardware configuration
+pref("dom.enable_performance", true);
+
+
+
+// Bugfix for missing menu bar? Doesn't work!
+// (better use userChrome.css to declare #mail-toolbar-menubar2 overflow visible)
+pref ("mail.mail_menu.collapse_by_default", false);
+
+
+try {
+ 
+var userInfo = new Object();  // This will hold LDAP results
+ 
+userInfo.envUser = getenv("USER");   // USERNAME
+userInfo.envHome = getenv("HOME");       // User home directory
+userInfo.mailDomain = "<%= @maildomain %>"; //User Domain
+userInfo.envDomain = "<%= @accountdomain %>";
+userInfo.mailAddr = userInfo.envUser + "@" + userInfo.mailDomain;
+userInfo.imapServer = "<%= @imapserver %>";
+
+ 
+// create account
+// see also http://blog.deanandadie.net/2010/06/easy-thunderbird-account-management-using-mcd/
+
+// Identity
+defaultPref("mail.identity.id1.fullName", userInfo.cn );
+lockPref("mail.identity.id1.smtpServer", "smtp1" );
+lockPref("mail.identity.id1.useremail", userInfo.mailAddr );
+ 
+// IMAP server settings
+lockPref("mail.server.server1.hostname", userInfo.imapServer );
+lockPref("mail.server.server1.name", "<%= @organization %> IMAP" );
+lockPref("mail.server.server1.port", 993 );
+lockPref("mail.server.server1.socketType", 3 );
+lockPref("mail.server.server1.type", "imap" );
+lockPref("mail.server.server1.userName", userInfo.envUser);
+lockPref("mail.server.server1.moveOnSpam", true);
+lockPref("mail.server.server1.moveTargetMode", 1);
+lockPref("mail.server.server1.spamActionTargetFolder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Junk");
+lockPref("mail.server.server1.trash_folder_name", "Trash");
+lockPref("mail.identity.id1.draft_folder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Drafts");
+lockPref("mail.identity.id1.drafts_folder_picker_mode", "0");
+lockPref("mail.identity.id1.fcc_folder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Sent");
+lockPref("mail.identity.id1.fcc_folder_picker_mode", "0");
+
+lockPref("mail.identity.id1.organization", "<%= @organization %>");
+defaultPref("mail.identity.id1.overrideGlobal_Pref", true);
+defaultPref("mail.identity.id1.reply_on_top", 1);
+defaultPref("mail.identity.id1.sig_bottom", false);
+defaultPref("mail.identity.id1.sig_on_fwd", true);
+
+
+
+ 
+// SMTP server settings
+lockPref("mail.smtpserver.smtp1.authMethod", 3);
+lockPref("mail.smtpserver.smtp1.auth_method", 1);
+lockPref("mail.smtpserver.smtp1.description", "<%= @organization %>");
+lockPref("mail.smtpserver.smtp1.hostname", "<%= @smtpserver %>");
+lockPref("mail.smtpserver.smtp1.port", 587);
+lockPref("mail.smtpserver.smtp1.try_ssl", 2);
+lockPref("mail.smtpserver.smtp1.useSecAuth", false);
+lockPref("mail.smtpserver.smtp1.username", userInfo.envUser );
+lockPref("mail.identity.id1.stationery_folder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Templates");
+lockPref("mail.identity.id1.tmpl_folder_picker_mode", "0");
+
+
+<% if @ldapuri -%>
+// LDAP server settings
+defaultPref("ldap_2.autoComplete.directoryServer","ldap_2.servers.LDAPServer");
+defaultPref("ldap_2.autoComplete.useDirectory",true);
+defaultPref("ldap_2.servers.LDAPServer.auth.dn", userInfo.envUser + "@" + userInfo.envDomain ); 
+lockPref("ldap_2.servers.LDAPServer.auth.saslmech",''); // SASL mechanism, if necessary
+lockPref("ldap_2.servers.LDAPServer.autoComplete.commentFormat",''); //Any additional LDAP attributes to display on the autocomplete window
+lockPref("ldap_2.servers.LDAPServer.autoComplete.filterTemplate",'(|(displayName=%v*)(sn=%v*)(cn=%v*)(mail=%v*)(uid=%v*))'); //LDAP Attributes to Search for Autocomplete
+lockPref("ldap_2.servers.LDAPServer.autoComplete.nameFormat",'[displayName]'); //LDAP Attribute for display name
+lockPref("ldap_2.servers.LDAPServer.description",'LDAP <%= @organization %>'); //Human Readable description
+defaultPref("ldap_2.servers.LDAPServer.maxHits",300);
+lockPref("ldap_2.servers.LDAPServer.nameFormat",'[displayName]');
+lockPref("ldap_2.servers.LDAPServer.uri",'<%= @ldapuri %>'); //this will vary for each company
+defaultPref("ldap_2.servers.default.attrmap.DisplayName",'displayName,gecos');
+defaultPref("ldap_2.servers.default.autoComplete.filterTemplate",'(|(displayName=%v*)(sn=%v*)(mail=%v*)(cn=%v*)(uid=%v*))');
+defaultPref("ldap_2.servers.default.autoComplete.nameFormat",'displayName');
+defaultPref("mail.addr_book.quicksearchquery.format",'?(or(FirstName,c,@V)(sn,c,@V)(DisplayName,c,@V))'); 
+<% end -%>
+
+<% if @caldavserver -%>
+// Calendar Settings
+defaultPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.cache.enabled", false);
+defaultPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.calendar-main-default", true);
+defaultPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.calendar-main-in-composite", true);
+defaultPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.color", "#336666");
+defaultPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.disabled", false);
+lockPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.imip.identity.key", "id4");
+lockPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.name", "<%= @organization %>");
+lockPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.readOnly", false);
+defaultPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.refreshInterval", 30);
+lockPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.suppressAlarms", false);
+lockPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.type", "caldav");
+lockPref("calendar.registry.6dedfbd7-f3b6-4434-8d52-8024ee99d72f.uri", "https://<%= @calendarserver %>/" + userInfo.envUser + "/calendar");
+lockPref("calendar.timezone.local", "<%= @caltimezone %>");
+
+//CardDAV
+lockPref("ldap_2.servers.Servidor.description", "Server");
+lockPref("ldap_2.servers.Servidor.dirType", 2);
+lockPref("ldap_2.servers.Servidor.filename", "abook-2.mab");
+
+lockPref("extensions.ca.inverse.addressbook.groupdav.ldap_2.servers.Servidor.ctag", "\"027d5f3147330bb9a4216df2833f5995\"");
+lockPref("extensions.ca.inverse.addressbook.groupdav.ldap_2.servers.Servidor.sync-token", "data:,53");
+lockPref("extensions.ca.inverse.addressbook.groupdav.ldap_2.servers.Servidor.url", "https://<%= @caldavserver %>/" + userInfo.envUser + "/addresses");
+<% end -%>
+
+//Other Configs
+lockPref("network.proxy.type", 4);
+
+
+ 
+// Glue it all together
+lockPref("mail.account.account1.identities", "id1" );
+lockPref("mail.account.account1.server", "server1" );
+defaultPref("mail.accountmanager.accounts", "account1" );
+defaultPref("mail.accountmanager.defaultaccount", "account1" );
+defaultPref("mail.smtp.defaultserver", "smtp1" );
+defaultPref("mail.smtpservers", "smtp1" );
+<% if @ldapuri -%>
+lockPref("mail.identity.id1.directoryServer", "ldap_2.servers.LDAPServer");
+<% end -%>
+
+
+ 
+// Close the try, and call the catch()
+} catch(e) {
+  displayError("lockedPref", e);
+}
+
