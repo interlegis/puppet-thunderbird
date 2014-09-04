@@ -24,7 +24,6 @@ pref("mailnews.start_page_override.mstone","ignore");
 pref("mail.rights.version", 1);
 
 // Don't ask to send aggregate health-data on second run
-pref("toolkit.telemetry.prompted", true);
 pref("toolkit.telemetry.rejected", true);
 
 // Don't send aggregate health-data
@@ -62,15 +61,22 @@ lockPref("mail.identity.id1.useremail", userInfo.mailAddr );
  
 // IMAP server settings
 lockPref("mail.server.server1.hostname", userInfo.imapServer );
-lockPref("mail.server.server1.name", "<%= @organization %> IMAP" );
+defaultPref("mail.server.server1.name", "<%= @organization %> IMAP" );
 lockPref("mail.server.server1.port", 993 );
 lockPref("mail.server.server1.socketType", 3 );
+lockPref("mail.server.server1.authMethod", 5);
 lockPref("mail.server.server1.type", "imap" );
 lockPref("mail.server.server1.userName", userInfo.envUser);
 lockPref("mail.server.server1.moveOnSpam", true);
 lockPref("mail.server.server1.moveTargetMode", 1);
 lockPref("mail.server.server1.spamActionTargetFolder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Junk");
 lockPref("mail.server.server1.trash_folder_name", "Trash");
+defaultPref("mail.server.server1.archiveMessages", true);
+defaultPref("mail.server.server1.archiveMessagesDays", 120);
+defaultPref("mail.server.server1.archiveStarred", true);
+defaultPref("mail.server.server1.archiveStarredDays", 120);
+defaultPref("mail.server.server1.archiveTagged", true);
+defaultPref("mail.server.server1.archiveTaggedDays", 120);
 lockPref("mail.identity.id1.draft_folder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Drafts");
 lockPref("mail.identity.id1.drafts_folder_picker_mode", "0");
 lockPref("mail.identity.id1.fcc_folder", "imap://" + userInfo.envUser + "@" + userInfo.imapServer + "/Sent");
@@ -86,7 +92,7 @@ defaultPref("mail.identity.id1.sig_on_fwd", true);
 
  
 // SMTP server settings
-lockPref("mail.smtpserver.smtp1.authMethod", 3);
+lockPref("mail.smtpserver.smtp1.authMethod", 5);
 lockPref("mail.smtpserver.smtp1.auth_method", 1);
 lockPref("mail.smtpserver.smtp1.description", "<%= @organization %>");
 lockPref("mail.smtpserver.smtp1.hostname", "<%= @smtpserver %>");
@@ -102,8 +108,8 @@ lockPref("mail.identity.id1.tmpl_folder_picker_mode", "0");
 // LDAP server settings
 defaultPref("ldap_2.autoComplete.directoryServer","ldap_2.servers.LDAPServer");
 defaultPref("ldap_2.autoComplete.useDirectory",true);
-defaultPref("ldap_2.servers.LDAPServer.auth.dn", userInfo.envUser + "@" + userInfo.envDomain ); 
-lockPref("ldap_2.servers.LDAPServer.auth.saslmech",''); // SASL mechanism, if necessary
+lockPref("ldap_2.servers.LDAPServer.auth.dn", "" ); 
+lockPref("ldap_2.servers.LDAPServer.auth.saslmech",'GSSAPI'); // SASL mechanism, if necessary
 lockPref("ldap_2.servers.LDAPServer.autoComplete.commentFormat",''); //Any additional LDAP attributes to display on the autocomplete window
 lockPref("ldap_2.servers.LDAPServer.autoComplete.filterTemplate",'(|(displayName=%v*)(sn=%v*)(cn=%v*)(mail=%v*)(uid=%v*))'); //LDAP Attributes to Search for Autocomplete
 lockPref("ldap_2.servers.LDAPServer.autoComplete.nameFormat",'[displayName]'); //LDAP Attribute for display name
@@ -145,7 +151,7 @@ lockPref("extensions.ca.inverse.addressbook.groupdav.ldap_2.servers.Servidor.url
 
 //Other Configs
 lockPref("network.proxy.type", 4);
-
+lockPref("mail.tabs.autohide", false);
 
  
 // Glue it all together
